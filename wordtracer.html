@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<!--
+  WordTracer — a structural Bible study tool
+  Copyright (C) 2026  Timothy Lee
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="color-scheme" content="light dark">
+<title>WordTracer — Beta</title>
+<style>
+:root{
+  color-scheme: dark;
+  --paper:#080B08;
+  --paper-2:#0E140E;
+  --paper-3:#0B100B;
+  --ink:#4AF06A;
+  --ink-soft:#2FAE4E;
+  --ink-faint:#1F7A38;
+  --rule:#1E4A2A;
+  --rule-strong:#2C6A3C;
+  --accent:#C6FF3D;
+  --accent-soft:#1C2E12;
+  --danger:#FF5D5D;
+  --blue:#0070C0;   --blue-soft:#0E2A33;
+  --green:#00B050;  --green-soft:#152F0E;
+  --amber:#FFC000;  --amber-soft:#33210A;
+  --purple:#7030A0; --purple-soft:#2A1233;
+  --red:#C00000;    --red-soft:#331616;
+  --teal:#008080;   --teal-soft:#0E332C;
+  --pink:#FF00FF;   --pink-soft:#331229;
+  --gold:#808000;   --gold-soft:#332B0E;
+  --font-serif:ui-monospace, 'SF Mono', 'Menlo', 'Consolas', 'Liberation Mono', monospace;
+  --font-sans:ui-monospace, 'SF Mono', 'Menlo', 'Consolas', 'Liberation Mono', monospace;
+  --font-mono:ui-monospace, 'SF Mono', 'Menlo', 'Consolas', 'Liberation Mono', monospace;
+  --indent-unit: 2ch;
+  --outline-font-size: .86rem;
+  --card-shadow: 3px 3px 0 var(--rule);
+}
+
+/* Modern themes use real system typefaces — no network font, same
+   offline-friendly stance as everything else in this app — and switch
+   indentation from monospace character-repetition to real padding, since
+   proportional fonts have no fixed character width to count on. */
+html[data-theme="modern-light"]{
+  color-scheme: light;
+  --paper:#FFFFFF;
+  --paper-2:#EFEBE3;
+  --paper-3:#FAF8F4;
+  --ink:#2B2823;
+  --ink-soft:#6B6459;
+  --ink-faint:#A39C8E;
+  --rule:#DCD5C7;
+  --rule-strong:#C7BEA9;
+  --accent:#2B6E6B;
+  --accent-soft:#DCEEEC;
+  --danger:#B23B3B;
+  --blue:#0070C0;   --blue-soft:#DCE9F5;
+  --green:#00B050;  --green-soft:#DFEFE1;
+  --amber:#FFC000;  --amber-soft:#F3E4CE;
+  --purple:#7030A0; --purple-soft:#EBE0F2;
+  --red:#C00000;    --red-soft:#F3DEDB;
+  --teal:#008080;   --teal-soft:#DBEEEA;
+  --pink:#FF00FF;   --pink-soft:#F0DCEA;
+  --gold:#808000;   --gold-soft:#F0E6CE;
+  --font-serif:ui-serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+  --font-sans:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --indent-unit: 20px;
+  --outline-font-size: 1.05rem;
+  --card-shadow: 3px 3px 0 var(--rule);
+}
+html[data-theme="modern-dark"]{
+  color-scheme: dark;
+  --paper:#1B1B1E;
+  --paper-2:#242428;
+  --paper-3:#161618;
+  --ink:#EDEAE3;
+  --ink-soft:#B0ABA0;
+  --ink-faint:#726C60;
+  --rule:#3A3A3E;
+  --rule-strong:#4C4C52;
+  --accent:#D4A24C;
+  --accent-soft:#3A2F1C;
+  --danger:#E1685F;
+  --blue:#0070C0;   --blue-soft:#213244;
+  --green:#00B050;  --green-soft:#1E3320;
+  --amber:#FFC000;  --amber-soft:#3A2C18;
+  --purple:#7030A0; --purple-soft:#2E2438;
+  --red:#C00000;    --red-soft:#3A211E;
+  --teal:#008080;   --teal-soft:#1E332E;
+  --pink:#FF00FF;   --pink-soft:#332030;
+  --gold:#808000;   --gold-soft:#332C1A;
+  --font-serif:ui-serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+  --font-sans:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --indent-unit: 20px;
+  --outline-font-size: 1.05rem;
+  --card-shadow: 3px 3px 0 var(--rule);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+html{background:var(--paper);}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-sans);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:contain;
+}
+main, #outline{color:var(--ink);}
+button{font-family:inherit;}
+input,textarea{font-family:inherit;}
+
+.eyebrow{
+  font-family:var(--font-sans);
+  font-size:.68rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+/* ---------- IMPORT SCREEN ---------- */
+#importScreen{
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:24px 16px 64px;
+  background:var(--paper);
+}
+.card{
+  background:var(--paper-3);
+  border:1px solid var(--rule);
+  box-shadow:var(--card-shadow);
+  border-radius:2px;
+  padding:24px;
+  width:100%;
+  max-width:520px;
+}
+.contact-note{
+  width:100%;
+  max-width:520px;
+  text-align:center;
+  font-family:var(--font-sans);
+  font-size:.78rem;
+  color:var(--ink-faint);
+  margin:18px 0 0;
+}
+.contact-note a{color:var(--accent);text-decoration:underline;}
+.hero-intro{
+  width:100%;
+  max-width:520px;
+  margin-bottom:20px;
+  padding:0 4px;
+}
+.card h1, .hero-intro h1{
+  font-family:var(--font-serif);
+  font-size:1.6rem;
+  font-weight:700;
+  margin:6px 0 4px;
+}
+.card p.sub, .hero-intro p.sub{
+  color:var(--ink-soft);
+  font-size:.9rem;
+  margin:0 0 20px;
+  line-height:1.5;
+}
+label.field-label{
+  display:block;
+  font-family:var(--font-sans);
+  font-size:.68rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  margin:16px 0 6px;
+}
+.mock-preview{
+  font-family:var(--font-serif);
+  font-size:.92rem;
+  line-height:1.7;
+  color:var(--ink);
+  background:var(--paper-3);
+  border:1px solid var(--rule-strong);
+  padding:14px 16px;
+}
+input[type=text], textarea, select{
+  width:100%;
+  background:var(--paper);
+  border:1px solid var(--rule-strong);
+  border-radius:2px;
+  padding:10px 12px;
+  color:var(--ink);
+  font-size:.95rem;
+}
+textarea{
+  font-family:var(--font-serif);
+  font-size:1rem;
+  line-height:1.6;
+  min-height:160px;
+  resize:vertical;
+}
+input:focus, textarea:focus, select:focus{
+  outline:2px solid var(--accent);
+  outline-offset:1px;
+  font-size:16px; /* iOS checks the size at the moment of focus — this is
+                     what actually prevents the auto-zoom, not the viewport
+                     meta tag, which modern iOS ignores for this purpose */
+}
+.btn{
+  font-family:var(--font-sans);
+  font-weight:600;
+  font-size:.88rem;
+  border:1px solid var(--ink);
+  background:var(--ink);
+  color:var(--paper);
+  padding:10px 16px;
+  border-radius:2px;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active{transform:translateY(1px);}
+.btn.secondary{
+  background:transparent;
+  color:var(--ink);
+  border-color:var(--rule-strong);
+}
+.btn.small{padding:6px 10px;font-size:.78rem;}
+.btn.ghost{
+  background:transparent;border:1px solid transparent;color:var(--ink-soft);
+}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+.row-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+
+/* ---------- APP SHELL ---------- */
+#app{display:none;min-height:100%;flex-direction:column;background:var(--paper);}
+#app.active{display:flex;}
+header.toolbar{
+  position:sticky;top:0;z-index:20;
+  background:var(--paper-2);
+  border-bottom:1px solid var(--rule-strong);
+  padding:10px 14px;
+}
+.toolbar-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.toolbar-top .title-block{flex:1;min-width:120px;}
+.toolbar-top h2{
+  font-family:var(--font-serif);font-size:1.15rem;margin:0;font-weight:700;
+}
+.toolbar-top .eyebrow{margin-top:1px;}
+.icon-btn{
+  background:var(--paper-2);border:1px solid var(--rule-strong);
+  color:var(--ink);width:34px;height:34px;border-radius:6px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:1rem;cursor:pointer;
+  box-shadow:0 1px 2px rgba(0,0,0,.25);
+}
+.icon-btn:not(:disabled):active{box-shadow:none;transform:translateY(1px);}
+.icon-btn:disabled{opacity:.3;box-shadow:none;}
+.icon-btn.active{background:var(--accent);color:var(--paper);border-color:var(--accent);}
+.toolbar-second{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center;}
+.toolbar-second select{width:auto;padding:6px 8px;font-size:.8rem;}
+#searchInput{width:auto;flex:1;min-width:110px;padding:6px 10px;font-size:.85rem;}
+#searchInput:focus{font-size:16px;}
+#matchCount{font-family:var(--font-sans);font-size:.7rem;color:var(--ink-soft);}
+
+/* ---------- OUTLINE ---------- */
+main{flex:1;padding:14px 10px 120px;max-width:900px;margin:0 auto;width:100%;background:var(--paper);}
+#outline{background:var(--paper);}
+#outline{
+  font-family:var(--font-serif);
+  font-size:var(--outline-font-size);
+  line-height:1.5;
+  overflow-x:auto;
+}
+.line-wrap{
+  touch-action:pan-y;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.line-wrap.selected{background:var(--accent-soft);}
+.line-wrap.pressing{background:var(--rule);}
+.line{
+  display:flex;align-items:flex-start;gap:0;
+  padding:1px 0;
+  border-bottom:1px solid transparent;
+}
+.chunk-heading{
+  display:flex;align-items:flex-start;gap:0;
+  padding:3px 0 1px;
+  font-weight:800;
+  font-size:.8rem;
+}
+.unit-text{
+  flex:1 1 auto;min-width:0;white-space:normal;word-break:break-word;
+  touch-action:pan-y;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+}
+.token{cursor:pointer;padding:0 1px;}
+.token.match{background:var(--accent);color:var(--paper);}
+.token.armed{background:var(--accent);color:var(--paper);border-radius:2px;box-shadow:0 0 0 2px var(--accent);}
+.token.has-note{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px;}
+.verse-num{
+  font-size:.68em;
+  font-weight:700;
+  color:var(--ink-faint);
+  margin-right:1px;
+  user-select:none;
+}
+body.hide-verse-numbers .verse-num{display:none;}
+.word-notes-box{
+  font-family:var(--font-sans);
+  font-size:.78rem;
+  font-style:italic;
+  color:var(--ink-soft);
+  border-left:2px solid var(--accent);
+  background:var(--paper-3);
+  padding:6px 10px;
+  margin:2px 0 6px;
+  cursor:pointer;
+}
+.wn-entry{padding:1px 0;}
+.wn-entry:not(:last-child){margin-bottom:2px;}
+.wn-word{font-style:normal;font-weight:700;color:var(--ink);}
+/* ---------- FLOATING CONTEXT BAR ---------- */
+#contextBar{
+  position:fixed;left:0;right:0;bottom:0;
+  display:flex;justify-content:center;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  transform:translateY(120%);
+  transition:transform .18s ease;
+  z-index:30;
+}
+#contextBar.open{transform:translateY(0);}
+#cursorBar{
+  position:fixed;left:0;right:0;bottom:0;
+  display:flex;justify-content:center;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  transform:translateY(120%);
+  transition:transform .18s ease;
+  z-index:31;
+}
+#cursorBar.open{transform:translateY(0);}
+.word-note-dialog{
+  position:fixed;inset:0;z-index:70;
+  background:var(--paper);
+  display:flex;flex-direction:column;
+  padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+  transform:translateY(100%);
+  transition:transform .2s ease;
+}
+.word-note-dialog.open{transform:translateY(0);}
+.wnd-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.wnd-context{
+  font-family:var(--font-serif);font-size:1rem;line-height:1.9;
+  color:var(--ink-soft);
+  background:var(--paper-3);border:1px solid var(--rule-strong);
+  padding:12px;margin-bottom:14px;
+  max-height:30vh;overflow-y:auto;
+}
+.preview-content{
+  flex:1;overflow-y:auto;
+  font-family:var(--font-serif);
+  line-height:1.6;
+  padding:4px 2px;
+}
+.preview-content .line, .preview-content .chunk-heading{cursor:default;}
+.preview-content .word-notes-box{cursor:default;}
+.wnd-token{padding:0 1px;}
+.wnd-token.target{
+  background:var(--accent);color:var(--paper);font-weight:700;
+  border-radius:2px;
+}
+#wndTextarea{
+  flex:1;width:100%;min-height:200px;resize:none;
+  background:var(--paper-3);border:1px solid var(--rule-strong);
+  color:var(--ink);font-size:.95rem;
+  padding:12px;
+}
+#wndTextarea:focus{font-size:16px;}
+.split-cursor-bar{
+  position:fixed;z-index:66;pointer-events:none;
+  width:2px;background:var(--accent);
+  opacity:0;
+}
+.split-cursor-bar.visible{opacity:1;animation:cursor-blink 1s steps(1) infinite;}
+@keyframes cursor-blink{0%,50%{opacity:1;}50.01%,100%{opacity:0;}}
+.pill-2row{
+  background:var(--paper-3);color:var(--ink);border:1px solid var(--rule-strong);
+  padding:8px 10px;
+  display:flex;flex-direction:column;gap:6px;
+  width:100%;max-width:100%;font-family:var(--font-sans);
+}
+.pill-row-top{
+  display:flex;justify-content:center;gap:10px;
+}
+.pill-row-bottom{
+  display:flex;justify-content:center;align-items:center;gap:4px;flex-wrap:wrap;
+}
+.pill-row-top button, .pill-row-bottom button{
+  background:transparent;border:none;color:var(--ink);
+  font-family:var(--font-sans);cursor:pointer;white-space:nowrap;
+}
+.pill-row-top button:disabled, .pill-row-bottom button:disabled{opacity:.3;}
+.pill-row-bottom button{
+  font-size:.78rem;font-weight:600;padding:7px 10px;
+}
+.pill-row-bottom button:not(:disabled):active{background:rgba(255,255,255,.15);}
+.pill-row-bottom button.emph{
+  font-weight:900;text-transform:uppercase;color:var(--accent);
+}
+.pill-row-top button.big{
+  flex:1;min-width:0;text-align:center;
+  font-size:1.3rem;font-weight:800;
+  padding:14px 12px;
+  border:1px solid var(--rule-strong);border-radius:8px;
+  background:var(--paper-2);
+  box-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+.pill-row-top button.big:not(:disabled):active{background:var(--rule-strong);box-shadow:none;transform:translateY(1px);}
+.pill-row-bottom .sep{width:1px;height:16px;background:rgba(255,255,255,.25);margin:0 2px;}
+
+/* ---------- BOTTOM SHEET ---------- */
+.sheet-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.25);
+  opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:40;
+}
+.sheet-overlay.open{opacity:1;pointer-events:auto;}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:41;
+  background:var(--paper-3);border-top:1px solid var(--rule-strong);
+  box-shadow:0 -2px 0 var(--rule);
+  border-radius:0;
+  padding:16px 18px calc(20px + env(safe-area-inset-bottom));
+  max-height:70vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .2s ease;
+}
+.sheet.open{transform:translateY(0);}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sheet-head h3{font-family:var(--font-serif);margin:0;font-size:1.05rem;}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.swatch{
+  width:32px;height:32px;border-radius:50%;border:2px solid transparent;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;
+}
+.swatch.active{border-color:var(--ink);}
+.swatch.none{background:var(--paper);border:1.5px dashed var(--rule-strong);color:var(--ink-faint);}
+
+/* ---------- MODAL ---------- */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.35);
+  display:none;align-items:center;justify-content:center;z-index:50;padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--paper-3);border:1px solid var(--rule);box-shadow:var(--card-shadow);
+  border-radius:2px;padding:20px;width:100%;max-width:360px;
+}
+.modal h3{font-family:var(--font-serif);margin:0 0 12px;}
+.modal .row-actions{margin-top:16px;}
+
+/* ---------- TOAST ---------- */
+#toast{
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,12px);
+  background:var(--paper-3);color:var(--ink);font-size:.82rem;
+  border:1px solid var(--rule-strong);
+  padding:9px 16px;border-radius:0;opacity:0;pointer-events:none;
+  transition:all .18s ease;z-index:60;font-family:var(--font-sans);
+}
+#toast.show{opacity:1;transform:translate(-50%,0);}
+
+.export-text{
+  width:100%;min-height:220px;font-family:var(--font-mono);font-size:.78rem;
+  background:var(--paper);border:1px solid var(--rule-strong);border-radius:2px;padding:10px;
+  white-space:pre-wrap;
+}
+.empty-hint{
+  color:var(--ink-faint);font-style:italic;font-family:var(--font-serif);
+  padding:20px 10px;text-align:center;
+}
+</style>
+</head>
+<body>
+
+<!-- ============ IMPORT SCREEN ============ -->
+<div id="importScreen">
+  <div class="hero-intro">
+    <div class="eyebrow">Structural Analysis · Beta</div>
+    <h1>WordTracer</h1>
+    <p class="sub">This tool helps you slow down over a Bible passage and trace its structure — dividing the text into its units of thought, nesting subordinate ideas under main ones, colour-coding chunks, and attaching notes to individual words. The words never change, because every word is given by God — down to the conjunctions that carry the argument. Your task is not to impose a structure but to discern the one the author built, so that in following his flow of thought you hear the intention of the human author, and in it, the voice of the divine Author.</p>
+
+    <label class="field-label">Example of a structured passage</label>
+    <div class="mock-preview" aria-hidden="true">
+      <div class="chunk-heading" style="padding-left:0;">
+        <span style="color:var(--accent);">The Vine and the Branches</span>
+      </div>
+      <div class="line" style="padding-left:0;">
+        <span class="unit-text">Remain in me, and I in you.</span>
+      </div>
+      <div class="line" style="padding-left:calc(var(--indent-unit) * 1);">
+        <span class="unit-text" style="color:var(--blue);">As the branch can't bear <span style="text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px;">fruit</span> by itself</span>
+      </div>
+      <div class="line" style="padding-left:calc(var(--indent-unit) * 1);">
+        <span class="unit-text">unless it remains in the vine.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="eyebrow">Resume</div>
+    <h1 style="font-size:1.25rem;">Open a saved study</h1>
+    <p class="sub">Saved studies are self-contained files — just open one directly and it picks up exactly where you left off. Use the picker below if you're already here and want to switch studies.</p>
+    <div class="row-actions">
+      <button class="btn secondary" id="loadFileBtn">Choose file…</button>
+    </div>
+    <input type="file" id="loadFileInput" accept=".json,.html,application/json,text/html" style="display:none;">
+    <script id="embeddedSaveData" type="application/json">null</script>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Start New</div>
+    <h1 style="font-size:1.25rem;">New Passage</h1>
+
+    <label class="field-label">Passage title</label>
+    <input type="text" id="passageTitleInput" placeholder="e.g. John 15:1–8">
+
+    <label class="field-label">Scripture text</label>
+    <textarea id="passageTextInput" placeholder="Paste the passage text here…"></textarea>
+
+    <label class="field-label">First structure name</label>
+    <input type="text" id="structureNameInput" value="My Study">
+
+    <div class="row-actions">
+      <button class="btn" id="loadBtn">Load passage</button>
+      <button class="btn secondary" id="sampleBtn">Use sample (John 15:4–5)</button>
+    </div>
+  </div>
+
+  <p class="contact-note">The bundled sample passage is from the World English Bible (public domain). Scripture text you paste in remains the property of its own copyright holder or translator — WordTracer claims no rights over it.</p>
+  <p class="contact-note">Questions or feedback? <a href="https://github.com/timothy733/WordTracer/discussions/new">Open a GitHub Discussion</a> (free GitHub account required).</p>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <header class="toolbar">
+    <div class="toolbar-top">
+      <div class="title-block">
+        <h2 id="passageTitleDisplay">Passage</h2>
+        <div class="eyebrow" id="passageMeta"></div>
+      </div>
+      <button class="icon-btn" id="undoBtn" title="Undo">↶</button>
+      <button class="icon-btn" id="redoBtn" title="Redo">↷</button>
+      <button class="icon-btn" id="themeBtn" title="Switch appearance">◐</button>
+      <button class="icon-btn" id="notesViewBtn" title="Reading mode">🗒</button>
+      <button class="icon-btn" id="verseNumBtn" title="Toggle verse numbers">¹</button>
+      <button class="icon-btn" id="saveBtn" title="Save to file">💾</button>
+      <button class="icon-btn" id="exportBtn" title="Export">⇩</button>
+      <button class="icon-btn" id="newPassageBtn" title="New passage">📄</button>
+    </div>
+    <div class="toolbar-second">
+      <select id="structureSelect"></select>
+      <input type="text" id="searchInput" placeholder="Search words &amp; notes…">
+      <span id="matchCount"></span>
+      <button class="icon-btn" id="zoomOutBtn" title="Zoom out">−</button>
+      <button class="icon-btn" id="zoomInBtn" title="Zoom in">+</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="outline"></div>
+  </main>
+</div>
+
+<div id="contextBar">
+  <div class="pill-2row" id="contextPill">
+    <div class="pill-row-top" id="contextTopRow"></div>
+    <div class="pill-row-bottom" id="contextBottomRow"></div>
+  </div>
+</div>
+
+<div id="cursorBar">
+  <div class="pill-2row" id="cursorPill">
+    <div class="pill-row-top">
+      <button id="curLeft" class="big">←</button>
+      <button id="curRight" class="big">→</button>
+    </div>
+    <div class="pill-row-bottom">
+      <button id="curCancel">Cancel</button>
+      <button id="curNote">Note</button>
+      <button id="curSplit" class="emph">SPLIT</button>
+    </div>
+  </div>
+</div>
+
+<div class="word-note-dialog" id="wordNoteDialog">
+  <div class="wnd-head">
+    <span class="eyebrow">Word Note</span>
+    <button class="btn small" id="wndDone">Done</button>
+  </div>
+  <div class="wnd-context" id="wndContext"></div>
+  <textarea id="wndTextarea" placeholder="Notes for this word…"></textarea>
+</div>
+
+<div class="word-note-dialog" id="printPreviewDialog">
+  <div class="wnd-head">
+    <span class="eyebrow">Reading Mode</span>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button class="icon-btn" id="previewFontMinus" title="Smaller text">−</button>
+      <button class="icon-btn" id="previewFontPlus" title="Larger text">+</button>
+      <button class="btn small" id="previewDone">Done</button>
+    </div>
+  </div>
+  <div id="previewContent" class="preview-content"></div>
+</div>
+
+<div class="sheet-overlay" id="sheetOverlay"></div>
+<div class="sheet" id="editSheet">
+  <div class="sheet-head">
+    <h3>Chunk details</h3>
+    <button class="btn ghost small" id="closeSheetBtn">Close</button>
+  </div>
+  <div id="sheetTitleRow">
+    <label class="field-label">Title</label>
+    <input type="text" id="sheetTitle">
+  </div>
+  <label class="field-label">Colour</label>
+  <div class="swatches" id="sheetSwatches"></div>
+</div>
+
+<div class="sheet" id="exportSheet">
+  <div class="sheet-head">
+    <h3>Export outline</h3>
+    <button class="btn ghost small" id="closeExportBtn">Close</button>
+  </div>
+  <p class="eyebrow" style="margin-bottom:8px;">Markdown — copy or select manually</p>
+  <textarea class="export-text" id="exportText" readonly></textarea>
+  <div class="row-actions">
+    <button class="btn small" id="copyExportBtn">Copy to clipboard</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">New structure</h3>
+    <input type="text" id="modalInput">
+    <div class="row-actions">
+      <button class="btn" id="modalOk">Create</button>
+      <button class="btn secondary" id="modalCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal">
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmMessage" style="color:var(--ink-soft);font-size:.9rem;line-height:1.5;margin:0 0 4px;"></p>
+    <div class="row-actions">
+      <button class="btn" id="confirmOkBtn">Continue</button>
+      <button class="btn secondary" id="confirmCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="splitCursorBar" class="split-cursor-bar"></div>
+
+<script>
+(function(){
+"use strict";
+
+// Captured before anything else executes, so this can never reflect a
+// runtime-mutated DOM (a stale input value, an open sheet, a switched
+// theme). This is the "blank shell" a save file is built from.
+let PRISTINE_HTML = null;
+try{
+  PRISTINE_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+}catch(err){
+  console.error('[pristine HTML capture failed]', err);
+}
+
+
+window.addEventListener('error', function(e){
+  try{ toast('Error: ' + (e.message || 'see details below')); }catch(_){}
+  console.error('[app error]', e.error || e.message, e);
+  e.preventDefault(); // suppress the browser's own default reporting —
+                       // we already surface this ourselves above
+});
+window.addEventListener('unhandledrejection', function(e){
+  const msg = (e.reason && e.reason.message) ? e.reason.message : String(e.reason);
+  try{ toast('Rejected: ' + msg); }catch(_){}
+  console.error('[unhandled rejection]', e.reason);
+  e.preventDefault();
+});
+
+/* ============================================================
+   DATA MODEL
+   tokens: [{id, text}]  — immutable once a passage is loaded
+
+   line: {
+     id,
+     tokenStart, tokenEnd,   // number, number => this line carries its own
+                              // span of scripture text.
+                              // null, null      => a pure label line, no text
+                              // of its own — used purely to hold a title
+                              // above some indented lines.
+     indent,                 // integer >= 0. Purely a display/outline depth —
+                              // like a code editor's fold level. Changing it
+                              // NEVER moves the line's position in the array.
+     color, title, note
+   }
+
+   lines: [line, line, line, ...]   — one FLAT array, always in the same
+   left-to-right order as the underlying token stream.
+
+   This is the whole point of this model: document order is the array
+   order, full stop. No action ever reorders the array — split/merge only
+   ever replace a line with what it was split into, or fold two adjacent
+   lines back into one, at the exact same position. Indent/outdent only
+   ever change a number on a single line. There is no tree to keep
+   consistent, so there is nothing to accidentally get wrong.
+
+   "Chunks" are not stored — a chunk is just a visual run of consecutive
+   lines whose indent is greater than the line above them. It's computed
+   at render time, never persisted as its own object.
+   ============================================================ */
+
+const CHUNK_COLORS = [
+  {key:'blue',   label:'Command (Word Blue)',        hex:'var(--blue)'},
+  {key:'green',  label:'Promise (Word Green)',       hex:'var(--green)'},
+  {key:'amber',  label:'Illustration (Word Orange)', hex:'var(--amber)'},
+  {key:'purple', label:'Christological (Word Purple)', hex:'var(--purple)'},
+  {key:'red',    label:'Warning (Word Dark Red)',    hex:'var(--red)'},
+  {key:'teal',   label:'Contrast (Word Teal)',       hex:'var(--teal)'},
+  {key:'pink',   label:'Emphasis (Word Pink)',       hex:'var(--pink)'},
+  {key:'gold',   label:'Prophecy (Word Dark Yellow)', hex:'var(--gold)'},
+];
+
+let idCounter = 1;
+const nid = () => 'n' + (idCounter++);
+
+let tokens = [];
+let passageTitle = '';
+let structures = {};          // name -> lines array
+let currentStructureName = null;
+let lines = [];
+let history = [];
+let future = [];
+let selectedIds = new Set();
+let searchQuery = '';
+let activeEditId = null;
+let splitCursor = null; // null, or {lineId, boundary} — a persistent, button-driven split position
+let wordNotes = {};     // {tokenIndex: noteText} — passage-level, shared across structures,
+                         // and immune to splitting since token indices never change
+
+function makeLine(tokenStart, tokenEnd, indent){
+  return {id:nid(), tokenStart, tokenEnd, indent:indent||0, color:null, title:null};
+}
+function hasText(line){
+  return typeof line.tokenStart === 'number';
+}
+
+function indexOf(id){
+  return lines.findIndex(l => l.id === id);
+}
+
+/* ---------------- history ---------------- */
+function pushHistory(){
+  history.push(JSON.stringify(lines));
+  if(history.length > 100) history.shift();
+  future = [];
+}
+function mutate(fn){
+  pushHistory();
+  try{
+    fn();
+  }catch(err){
+    console.error('[mutate failed, rolling back]', err);
+    lines = JSON.parse(history.pop());
+    toast('That action failed and was rolled back');
+    render();
+    return;
+  }
+  structures[currentStructureName] = lines;
+  render();
+}
+function undo(){
+  if(!history.length) return;
+  future.push(JSON.stringify(lines));
+  lines = JSON.parse(history.pop());
+  structures[currentStructureName] = lines;
+  selectedIds.clear();
+  render();
+}
+function redo(){
+  if(!future.length) return;
+  history.push(JSON.stringify(lines));
+  lines = JSON.parse(future.pop());
+  structures[currentStructureName] = lines;
+  selectedIds.clear();
+  render();
+}
+
+/* ---------------- actions ----------------
+   Every action below either replaces a line with what it was split into
+   (at the same array position), merges two adjacent lines into one (at
+   that position), inserts/removes a label line, or changes a single
+   line's `indent` number. None of these can ever reorder the array, so
+   document order can't be broken by any combination of them. */
+
+function splitUnit(id, boundary){
+  const i = indexOf(id);
+  if(i < 0 || !hasText(lines[i])) return;
+  const line = lines[i];
+  if(boundary <= line.tokenStart || boundary > line.tokenEnd) return;
+  mutate(()=>{
+    const left = makeLine(line.tokenStart, boundary-1, line.indent);
+    const right = makeLine(boundary, line.tokenEnd, line.indent);
+    // The left fragment keeps the original line's identity — its title and
+    // colour — since it's the one still sitting where the line originally
+    // was. The right fragment starts fresh. Word-level notes need no rule
+    // at all here: they're keyed by token index, which never changes.
+    left.title = line.title;
+    left.color = line.color;
+    lines.splice(i, 1, left, right);
+  });
+}
+
+// If a title would otherwise be lost, it becomes a note on that word
+// instead — prepended ahead of any note already there, never overwriting.
+function titleToNote(tokenIdx, titleText){
+  if(!titleText) return;
+  const existing = wordNotes[tokenIdx];
+  wordNotes[tokenIdx] = existing ? (titleText + '\n\n' + existing) : titleText;
+}
+
+function mergeWithNext(id){
+  const i = indexOf(id);
+  if(i < 0 || !hasText(lines[i])) return;
+  const next = lines[i+1];
+  if(!next || !hasText(next)){
+    toast("Can't merge — next item isn't a plain adjacent line"); return;
+  }
+  mutate(()=>{
+    const a = lines[i];
+    titleToNote(a.tokenStart, a.title);
+    titleToNote(next.tokenStart, next.title);
+    const merged = makeLine(a.tokenStart, next.tokenEnd, a.indent);
+    merged.color = a.color;
+    lines.splice(i, 2, merged);
+    selectedIds = new Set([merged.id]);
+  });
+}
+
+function indentLine(id){
+  const i = indexOf(id);
+  if(i < 0) return;
+  mutate(()=>{ lines[i].indent += 1; });
+}
+
+function outdentLine(id){
+  const i = indexOf(id);
+  if(i < 0) return;
+  if(lines[i].indent <= 0){ toast('Already at the top level'); return; }
+  mutate(()=>{ lines[i].indent -= 1; });
+}
+
+function toggleSelect(id){
+  if(selectedIds.has(id) && selectedIds.size === 1){
+    selectedIds.clear();
+  } else {
+    selectedIds = new Set([id]);
+  }
+  render();
+}
+
+// Defensive: repair anything malformed rather than letting the renderer
+// crash on it, and log so a real issue would still be visible.
+function sanitizeLines(){
+  if(!Array.isArray(lines)){
+    console.warn('[sanitize] lines was not an array — reset');
+    lines = [];
+    return;
+  }
+  lines = lines.filter(l => l && typeof l === 'object' && typeof l.id === 'string');
+  lines.forEach(l => {
+    if(typeof l.indent !== 'number' || l.indent < 0) l.indent = 0;
+  });
+}
+
+/* ---------------- rendering ---------------- */
+const outlineEl = document.getElementById('outline');
+
+function tokenMatches(t){
+  return searchQuery && t.text.toLowerCase().includes(searchQuery);
+}
+
+function renderOutline(){
+  outlineEl.innerHTML = '';
+  if(!lines.length){
+    outlineEl.innerHTML = '<div class="empty-hint">-- structure is empty --</div>';
+    return;
+  }
+  lines.forEach((line, i) => {
+    try{
+      outlineEl.appendChild(renderRow(line, i));
+    }catch(err){
+      console.error('[row render failed]', err, line);
+      const errLine = document.createElement('div');
+      errLine.className = 'line';
+      errLine.style.color = 'var(--danger)';
+      errLine.textContent = '-- a row failed to render --';
+      outlineEl.appendChild(errLine);
+    }
+  });
+}
+
+// A line's colour is strictly its own — no inheritance from a shallower
+// line above it. Colouring one line was previously cascading to every
+// nested descendant automatically, which read as a bug in practice (a
+// colour change should only affect what was actually selected).
+function getEffectiveColor(i){
+  return lines[i].color || null;
+}
+
+// Builds the "[word] note" box for a line, or returns null if it has no
+// noted words. Shared by reading mode — deliberately has no click
+// handler or other interactive affordance, since the preview must render
+// with zero interactivity beyond its own font-size controls.
+function buildWordNotesBox(line){
+  const notedTokens = [];
+  for(let k=line.tokenStart; k<=line.tokenEnd; k++){
+    if(wordNotes[k]) notedTokens.push(k);
+  }
+  if(!notedTokens.length) return null;
+  const box = document.createElement('div');
+  box.className = 'word-notes-box';
+  notedTokens.forEach(k => {
+    const entry = document.createElement('div');
+    entry.className = 'wn-entry';
+    const wordSpan = document.createElement('span');
+    wordSpan.className = 'wn-word';
+    wordSpan.textContent = '[' + tokens[k].text + ']';
+    entry.appendChild(wordSpan);
+    entry.appendChild(document.createTextNode(' ' + wordNotes[k]));
+    box.appendChild(entry);
+  });
+  return box;
+}
+
+function renderRow(line, i){
+  const selected = selectedIds.has(line.id);
+  const effColor = getEffectiveColor(i);
+  const indentCss = `calc(var(--indent-unit) * ${line.indent})`;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'line-wrap' + (selected ? ' selected' : '');
+  wrap.dataset.lineId = line.id;
+
+  if(line.title){
+    const heading = document.createElement('div');
+    heading.className = 'chunk-heading';
+    heading.style.paddingLeft = indentCss;
+    const headText = document.createElement('span');
+    headText.textContent = line.title;
+    headText.style.color = effColor || 'var(--accent)';
+    heading.appendChild(headText);
+    wrap.appendChild(heading);
+  }
+
+  const row = document.createElement('div');
+  row.className = 'line';
+  row.style.paddingLeft = indentCss;
+
+  const textEl = document.createElement('span');
+  textEl.className = 'unit-text';
+  textEl.style.color = effColor || 'var(--ink)';
+  for(let k=line.tokenStart; k<=line.tokenEnd; k++){
+    const t = tokens[k];
+    const span = document.createElement('span');
+    span.className = 'token' + (tokenMatches(t) ? ' match' : '') + (wordNotes[k] ? ' has-note' : '');
+    if(t.verseNumber){
+      const sup = document.createElement('sup');
+      sup.className = 'verse-num';
+      sup.textContent = t.verseNumber;
+      span.appendChild(sup);
+    }
+    span.appendChild(document.createTextNode(t.text));
+    span.dataset.idx = k;
+    span.dataset.lineId = line.id;
+    textEl.appendChild(span);
+    if(k < line.tokenEnd){
+      textEl.appendChild(document.createTextNode(' '));
+    }
+  }
+  row.appendChild(textEl);
+
+  wrap.appendChild(row);
+
+  attachLineGestures(wrap, line);
+
+  return wrap;
+}
+
+/* ---------------- press / tap gestures for text rows ----------------
+   Single tap does nothing (that ambiguity was the original problem).
+   Long-press anywhere on the row, including empty space, selects it.
+   Double-tap a word to start a new line there — that word becomes the
+   first word of the new (right-hand) fragment, not the last word of the
+   old one, since "this word begins the next chunk" is the more natural
+   reading of tapping directly on it.
+
+   Tap selects immediately — no delay, no waiting to see if a second tap
+   is coming. A fast second tap is handled as its own, separate action
+   (split) rather than a re-interpretation of the first, so selection
+   never has to be held back to stay unambiguous with double-tap.
+
+   Splitting is now a tap-and-hold: press on a word, and once armed it
+   highlights; keep holding and drag to slide the candidate to a different
+   word in real time; release to commit the split immediately before
+   whichever word is currently highlighted. This is deliberately slower
+   than a plain tap, on purpose — splitting is the more consequential
+   action, so it earns the more deliberate gesture.
+   Pointer Events are used so touch and mouse behave identically. */
+const LONG_PRESS_MS = 450;
+const PRESS_WOBBLE_PX = 10; // wobble tolerated before a pending long-press is cancelled
+const TAP_MAX_PX = 24;      // net finger drift still counted as "just a tap"
+
+const splitCursorBar = document.getElementById('splitCursorBar');
+const cursorBar = document.getElementById('cursorBar');
+
+// Finds the line that "owns" a given boundary — i.e. the text-bearing line
+// whose token range the cursor-before-token-b position actually falls
+// inside. Every valid boundary belongs to exactly one line.
+function lineIndexOwningBoundary(b){
+  return lines.findIndex(l => hasText(l) && b > l.tokenStart && b <= l.tokenEnd);
+}
+
+function moveCursorHorizontal(delta){
+  if(!splitCursor) return;
+  const b = Math.max(1, Math.min(tokens.length - 1, splitCursor.boundary + delta));
+  const idx = lineIndexOwningBoundary(b);
+  if(idx < 0) return; // landed in a gap with no valid owner (e.g. inside a 1-word line) — ignore
+  splitCursor = {lineId: lines[idx].id, boundary: b};
+  renderSplitCursor();
+  renderCursorBar();
+}
+
+// Up/Down for keyboard users: moves to the nearest word on the adjacent
+// VISUAL line (not the adjacent data-line — a single line can wrap across
+// several rows on screen, and this should move one rendered row at a
+// time, the same way a real text editor's arrow keys do). Two phases,
+// deliberately not a single nearest-neighbor scan: first find which
+// visual line is nearest in the requested direction, then find the
+// closest word *on that line* by horizontal position. Doing both at once
+// risks landing on a nearby word on the same line instead of moving rows.
+function moveCursorVerticalByPosition(dir){
+  if(!splitCursor) return;
+  const currentEl = outlineEl.querySelector(`.token[data-idx="${splitCursor.boundary}"]`);
+  if(!currentEl) return;
+  const curRect = currentEl.getBoundingClientRect();
+  const curX = curRect.left + curRect.width / 2;
+  const curY = curRect.top;
+  const LINE_TOLERANCE = 4; // px — treats near-identical tops as "the same visual line"
+
+  const allTokens = Array.from(outlineEl.querySelectorAll('.token'));
+  let targetLineY = null;
+  allTokens.forEach(el => {
+    const top = el.getBoundingClientRect().top;
+    if(Math.abs(top - curY) < LINE_TOLERANCE) return; // same line as current — not a candidate
+    if(dir < 0 && top < curY - LINE_TOLERANCE){
+      if(targetLineY === null || top > targetLineY) targetLineY = top; // nearest line above
+    } else if(dir > 0 && top > curY + LINE_TOLERANCE){
+      if(targetLineY === null || top < targetLineY) targetLineY = top; // nearest line below
+    }
+  });
+  if(targetLineY === null){
+    toast(dir < 0 ? 'Already at the top' : 'Already at the bottom');
+    return;
+  }
+
+  let best = null, bestDist = Infinity;
+  allTokens.forEach(el => {
+    const r = el.getBoundingClientRect();
+    if(Math.abs(r.top - targetLineY) >= LINE_TOLERANCE) return;
+    const dist = Math.abs((r.left + r.width / 2) - curX);
+    if(dist < bestDist){ bestDist = dist; best = el; }
+  });
+  if(!best) return;
+  const i = Number(best.dataset.idx);
+  const lineId = best.dataset.lineId;
+  if(Number.isNaN(i) || !lineId) return;
+  splitCursor = {lineId, boundary: i};
+  renderSplitCursor();
+  renderCursorBar();
+}
+
+// Desktop keyboard support for an armed cursor. Never fires unless a
+// cursor is actually armed, so it can't interfere with normal page
+// scrolling or typing — and explicitly backs off if focus is in one of
+// the app's own text inputs, so it never hijacks real text-cursor
+// movement inside the search box, a note, or any other field.
+document.addEventListener('keydown', (e) => {
+  const activeTag = document.activeElement && document.activeElement.tagName;
+  if(activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
+
+  if(splitCursor){
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); moveCursorHorizontal(-1); }
+    else if(e.key === 'ArrowRight'){ e.preventDefault(); moveCursorHorizontal(1); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); moveCursorVerticalByPosition(-1); }
+    else if(e.key === 'ArrowDown'){ e.preventDefault(); moveCursorVerticalByPosition(1); }
+    else if(e.key === 'Enter'){ e.preventDefault(); commitCursor(); }
+    else if(e.key === 'Escape'){ e.preventDefault(); cancelCursor(); }
+    else if(e.key === ' ' || e.code === 'Space'){ e.preventDefault(); openWordNoteDialog(splitCursor.boundary); }
+    return;
+  }
+
+  // Shift+Left/Right mirrors the ← Outdent / Indent → buttons exactly —
+  // only meaningful when a single line is selected, which is also exactly
+  // when those buttons are visible in the context bar.
+  if(selectedIds.size === 1 && e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')){
+    const id = [...selectedIds][0];
+    e.preventDefault();
+    if(e.key === 'ArrowRight') indentLine(id); else outdentLine(id);
+    return;
+  }
+
+  // 't' opens Details focused on the title field; Space opens it with no
+  // focus at all — same underlying function, just the new parameter
+  // differing, so there's one code path for "open Details," not two.
+  if(selectedIds.size === 1 && !e.shiftKey){
+    const id = [...selectedIds][0];
+    if(e.key.toLowerCase() === 't'){
+      e.preventDefault();
+      openEditSheet(id, true);
+      return;
+    }
+    if(e.key === ' ' || e.code === 'Space'){
+      e.preventDefault();
+      openEditSheet(id, false);
+      return;
+    }
+  }
+
+  // Plain (non-shift) Up/Down moves the selection itself to the adjacent
+  // line — ordinary list-style navigation, deliberately separate from the
+  // Shift+Left/Right indent shortcut above.
+  if(selectedIds.size === 1 && !e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')){
+    const id = [...selectedIds][0];
+    const i = indexOf(id);
+    if(i < 0) return;
+    const next = e.key === 'ArrowDown' ? i + 1 : i - 1;
+    if(next < 0 || next >= lines.length) return;
+    e.preventDefault();
+    selectedIds = new Set([lines[next].id]);
+    render();
+    const el = outlineEl.querySelector('.line-wrap.selected');
+    if(el) el.scrollIntoView({block: 'nearest'});
+  }
+});
+
+// Jump the cursor straight to whichever word was tapped, anywhere on
+// screen — this is what makes reaching a word "below" work even when the
+// whole passage is still one long, wrapped, unsplit line: there's no data
+// model boundary to fail on, only "which word did you tap."
+function jumpCursorToToken(tokenEl){
+  const i = Number(tokenEl.dataset.idx);
+  const lineId = tokenEl.dataset.lineId;
+  if(Number.isNaN(i) || !lineId) return;
+  splitCursor = {lineId, boundary: i};
+  if(navigator.vibrate) navigator.vibrate(8);
+  renderSplitCursor();
+  renderCursorBar();
+}
+
+function armCursor(lineId, boundary){
+  splitCursor = {lineId, boundary};
+  if(navigator.vibrate) navigator.vibrate(12);
+  render();
+}
+
+function cancelCursor(){
+  splitCursor = null;
+  render();
+}
+
+function commitCursor(){
+  if(!splitCursor) return;
+  const idx = indexOf(splitCursor.lineId);
+  if(idx < 0){ splitCursor = null; render(); return; }
+  const boundary = splitCursor.boundary;
+  splitCursor = null;
+  if(boundary <= lines[idx].tokenStart){
+    toast('Nothing to split before the first word');
+    render();
+  } else {
+    splitUnit(lines[idx].id, boundary);
+  }
+}
+
+// Repositions the blinking cursor bar to match wherever splitCursor
+// currently points. Always re-queries the DOM fresh rather than caching an
+// element — rows get rebuilt on every render, so any cached reference
+// would go stale immediately.
+function renderSplitCursor(){
+  if(!splitCursor){
+    splitCursorBar.classList.remove('visible');
+    outlineEl.querySelectorAll('.token.armed').forEach(t => t.classList.remove('armed'));
+    return;
+  }
+  const tokenEl = outlineEl.querySelector(`.token[data-idx="${splitCursor.boundary}"]`);
+  outlineEl.querySelectorAll('.token.armed').forEach(t => t.classList.remove('armed'));
+  if(!tokenEl){
+    // The word this pointed to is gone (e.g. structure changed underneath
+    // it) — self-heal rather than show a cursor pointing at nothing.
+    splitCursor = null;
+    splitCursorBar.classList.remove('visible');
+    return;
+  }
+  tokenEl.classList.add('armed');
+  const r = tokenEl.getBoundingClientRect();
+  splitCursorBar.style.left = r.left + 'px';
+  splitCursorBar.style.top = r.top + 'px';
+  splitCursorBar.style.height = r.height + 'px';
+  splitCursorBar.classList.add('visible');
+}
+
+function renderCursorBar(){
+  const isOpen = !!splitCursor;
+  cursorBar.classList.toggle('open', isOpen);
+  if(!isOpen) return;
+  const b = splitCursor.boundary;
+  document.getElementById('curLeft').disabled = (b <= 1);
+  document.getElementById('curRight').disabled = (b >= tokens.length - 1);
+  // Split fails exactly when nothing owns this boundary as a valid interior
+  // position — i.e. the armed word is the first word of its line. Notes
+  // have no such restriction, so Note is never disabled here.
+  document.getElementById('curSplit').disabled = (lineIndexOwningBoundary(b) < 0);
+}
+
+const wordNoteDialog = document.getElementById('wordNoteDialog');
+const wndContext = document.getElementById('wndContext');
+const wndTextarea = document.getElementById('wndTextarea');
+let wordNoteIndex = null; // absolute token index currently open in the dialog
+
+function openWordNoteDialog(tokenIdx){
+  wordNoteIndex = tokenIdx;
+  const lineIdx = lines.findIndex(l => hasText(l) && tokenIdx >= l.tokenStart && tokenIdx <= l.tokenEnd);
+  wndContext.innerHTML = '';
+  if(lineIdx >= 0){
+    const line = lines[lineIdx];
+    for(let k=line.tokenStart; k<=line.tokenEnd; k++){
+      const span = document.createElement('span');
+      span.className = 'wnd-token' + (k===tokenIdx ? ' target' : '');
+      span.textContent = tokens[k].text;
+      wndContext.appendChild(span);
+      if(k < line.tokenEnd) wndContext.appendChild(document.createTextNode(' '));
+    }
+  }
+  wndTextarea.value = wordNotes[tokenIdx] || '';
+  wordNoteDialog.classList.add('open');
+  wndTextarea.focus();
+}
+
+function closeWordNoteDialog(){
+  wordNoteIndex = null;
+  wordNoteDialog.classList.remove('open');
+  cancelCursor(); // returns to normal browsing; also re-renders to refresh underlines
+}
+
+wndTextarea.addEventListener('input', () => {
+  if(wordNoteIndex === null) return;
+  const v = wndTextarea.value;
+  if(v.trim()) wordNotes[wordNoteIndex] = v;
+  else delete wordNotes[wordNoteIndex];
+});
+document.getElementById('wndDone').onclick = closeWordNoteDialog;
+
+document.getElementById('curLeft').onclick = () => moveCursorHorizontal(-1);
+document.getElementById('curRight').onclick = () => moveCursorHorizontal(1);
+document.getElementById('curCancel').onclick = () => cancelCursor();
+document.getElementById('curNote').onclick = () => { if(splitCursor) openWordNoteDialog(splitCursor.boundary); };
+document.getElementById('curSplit').onclick = () => commitCursor();
+
+// While cursor mode is active, tapping any word anywhere jumps the cursor
+// there directly — this is the primary way to move it now; ←/→ are for
+// fine-tuning by one word from wherever the tap landed. Delegated on the
+// outline container itself (not per-row) since it needs to work regardless
+// of which row was tapped, and survives rows being rebuilt on re-render.
+outlineEl.addEventListener('pointerup', (e) => {
+  if(!splitCursor) return;
+  const tokenEl = e.target.closest('.token');
+  if(!tokenEl) return;
+  jumpCursorToToken(tokenEl);
+});
+
+function attachLineGestures(line, node){
+  let startX = 0, startY = 0;
+  let pressTimer = null;
+
+  function clearPressTimer(){
+    if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; }
+  }
+
+  line.addEventListener('pointerdown', (e) => {
+    if(splitCursor) return; // cursor mode is exclusive — Split or Cancel first
+    startX = e.clientX; startY = e.clientY;
+
+    if(hasText(node)){
+      line.classList.add('pressing');
+      pressTimer = setTimeout(() => {
+        pressTimer = null;
+        line.classList.remove('pressing');
+        const tokenEl = e.target.closest('.token') ||
+          document.elementFromPoint(startX, startY)?.closest?.('.token');
+        const i = tokenEl ? Number(tokenEl.dataset.idx) : node.tokenStart;
+        armCursor(node.id, Number.isNaN(i) ? node.tokenStart + 1 : Math.max(node.tokenStart + 1, i));
+      }, LONG_PRESS_MS);
+    }
+  });
+
+  line.addEventListener('pointermove', (e) => {
+    // Once armed, positioning is entirely button-driven — no more drag
+    // tracking here at all, which is what removes any conflict with native
+    // vertical scrolling. Movement before arming still cancels a pending
+    // long-press, same as before.
+    if(splitCursor) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if(pressTimer && Math.hypot(dx, dy) > PRESS_WOBBLE_PX){
+      clearPressTimer();
+      line.classList.remove('pressing');
+    }
+  });
+
+  line.addEventListener('pointerup', (e) => {
+    clearPressTimer();
+    line.classList.remove('pressing');
+    if(splitCursor) return; // the long-press above already armed the cursor
+
+    // Net displacement between finger-down and finger-up, ignoring whatever
+    // wobble happened along the way — real fingers drift a few pixels even
+    // on a "still" tap, so judging this only by the endpoints (with a
+    // touch-sized allowance) is what makes an ordinary quick tap register.
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if(Math.hypot(dx, dy) > TAP_MAX_PX) return;
+
+    toggleSelect(node.id);
+  });
+
+  line.addEventListener('pointercancel', () => {
+    clearPressTimer();
+    line.classList.remove('pressing');
+  });
+}
+
+function renderMatchCount(){
+  const el = document.getElementById('matchCount');
+  if(!searchQuery){ el.textContent=''; return; }
+  const n = tokens.filter(tokenMatches).length;
+  el.textContent = n + (n===1 ? ' match' : ' matches');
+}
+
+function renderContextBar(){
+  const bar = document.getElementById('contextBar');
+  const topRow = document.getElementById('contextTopRow');
+  const bottomRow = document.getElementById('contextBottomRow');
+  const clearAll = () => { bar.classList.remove('open'); topRow.innerHTML=''; bottomRow.innerHTML=''; };
+
+  if(splitCursor){ clearAll(); return; }
+  const id = [...selectedIds][0];
+  if(!id){ clearAll(); return; }
+  const i = indexOf(id);
+  if(i < 0){
+    // Stale selection — the line it pointed to no longer exists. Self-heal
+    // rather than showing disabled buttons for a selection that's dead.
+    selectedIds.clear();
+    clearAll();
+    return;
+  }
+  bar.classList.add('open');
+  topRow.innerHTML = '';
+  bottomRow.innerHTML = '';
+
+  const addBtn = (row, label, fn, disabled, cls)=>{
+    const b=document.createElement('button');
+    b.textContent=label; b.disabled=!!disabled; b.onclick=fn;
+    if(cls) b.className=cls;
+    row.appendChild(b);
+  };
+  const sep=(row)=>{ const s=document.createElement('div'); s.className='sep'; row.appendChild(s); };
+
+  // Each condition below mirrors the corresponding action function's own
+  // guard exactly — if either drifts, they'll disagree, which is easy to
+  // catch by testing the button in the state it claims to be enabled for.
+  const canOutdent = lines[i].indent > 0;
+  const canIndent = true;
+  const next = lines[i+1];
+  const canMerge = !!next;
+
+  addBtn(topRow, '← Outdent', ()=>outdentLine(id), !canOutdent, 'big');
+  addBtn(topRow, 'Indent →', ()=>indentLine(id), !canIndent, 'big');
+
+  addBtn(bottomRow, 'Clear', ()=>{ selectedIds.clear(); render(); });
+  addBtn(bottomRow, 'Details', ()=>openEditSheet(id));
+  sep(bottomRow);
+  addBtn(bottomRow, 'Merge ↓', ()=>mergeWithNext(id), !canMerge);
+}
+
+function render(){
+  try{
+    sanitizeLines();
+    document.getElementById('undoBtn').disabled = !history.length;
+    document.getElementById('redoBtn').disabled = !future.length;
+    document.getElementById('passageTitleDisplay').textContent = passageTitle || 'Passage';
+    document.getElementById('passageMeta').textContent = tokens.length + ' tokens · ' + currentStructureName;
+    renderOutline();
+    renderMatchCount();
+    renderContextBar();
+    renderCursorBar();
+    renderSplitCursor();
+    if(activeEditId) refreshSheetSwatches();
+  }catch(err){
+    console.error('[render failed]', err);
+    toast('Render failed — see console');
+  }
+}
+
+/* ---------------- edit sheet ---------------- */
+const sheetOverlay = document.getElementById('sheetOverlay');
+const editSheet = document.getElementById('editSheet');
+const sheetTitle = document.getElementById('sheetTitle');
+const sheetSwatches = document.getElementById('sheetSwatches');
+
+function openEditSheet(id, focusTitle){
+  const i = indexOf(id);
+  if(i < 0) return;
+  pushHistory();
+  activeEditId = id;
+  const line = lines[i];
+  sheetTitle.value = line.title || '';
+  buildSwatches(line);
+  sheetOverlay.classList.add('open');
+  editSheet.classList.add('open');
+  if(focusTitle) sheetTitle.focus();
+}
+function closeEditSheet(){
+  activeEditId = null;
+  sheetOverlay.classList.remove('open');
+  editSheet.classList.remove('open');
+  render();
+}
+function buildSwatches(line){
+  sheetSwatches.innerHTML = '';
+  const noneSw = document.createElement('button');
+  noneSw.className = 'swatch none' + (!line.color ? ' active' : '');
+  noneSw.textContent = '×';
+  noneSw.onclick = ()=>{ line.color=null; structures[currentStructureName]=lines; buildSwatches(line); renderOutline(); };
+  sheetSwatches.appendChild(noneSw);
+  CHUNK_COLORS.forEach(c=>{
+    const sw = document.createElement('button');
+    sw.className = 'swatch' + (line.color===c.hex ? ' active' : '');
+    sw.style.background = c.hex;
+    sw.title = c.label;
+    sw.onclick = ()=>{ line.color=c.hex; structures[currentStructureName]=lines; buildSwatches(line); renderOutline(); };
+    sheetSwatches.appendChild(sw);
+  });
+}
+function refreshSheetSwatches(){
+  const i = indexOf(activeEditId);
+  if(i >= 0) buildSwatches(lines[i]);
+}
+sheetTitle.addEventListener('input', ()=>{
+  const i = indexOf(activeEditId);
+  if(i < 0) return;
+  lines[i].title = sheetTitle.value;
+  structures[currentStructureName] = lines;
+  renderOutline();
+});
+document.getElementById('closeSheetBtn').onclick = closeEditSheet;
+sheetOverlay.addEventListener('click', ()=>{
+  if(exportSheetOpen) closeExportSheet(); else closeEditSheet();
+});
+
+/* ---------------- export sheet ---------------- */
+const exportSheet = document.getElementById('exportSheet');
+let exportSheetOpen = false;
+function generateMarkdown(){
+  const outLines = [];
+  lines.forEach((line) => {
+    const indentStr = '  '.repeat(line.indent);
+    if(line.title){
+      outLines.push(indentStr + `- **${line.title}**`);
+    }
+    const text = tokens.slice(line.tokenStart, line.tokenEnd+1).map(t=>t.text).join(' ');
+    outLines.push(indentStr + '- ' + text);
+  });
+  const noteEntries = Object.keys(wordNotes)
+    .map(Number)
+    .filter(k => wordNotes[k] && tokens[k])
+    .sort((a,b) => a-b);
+  let noteSection = '';
+  if(noteEntries.length){
+    noteSection = '\n\n## Word notes\n\n' + noteEntries
+      .map(k => `- **${tokens[k].text}** — ${wordNotes[k].replace(/\n/g,' ')}`)
+      .join('\n');
+  }
+  return `# ${passageTitle}\n\n` + outLines.join('\n') + noteSection + '\n';
+}
+function openExportSheet(){
+  document.getElementById('exportText').value = generateMarkdown();
+  sheetOverlay.classList.add('open');
+  exportSheet.classList.add('open');
+  exportSheetOpen = true;
+}
+function closeExportSheet(){
+  exportSheet.classList.remove('open');
+  sheetOverlay.classList.remove('open');
+  exportSheetOpen = false;
+}
+document.getElementById('exportBtn').onclick = openExportSheet;
+document.getElementById('closeExportBtn').onclick = closeExportSheet;
+document.getElementById('copyExportBtn').onclick = async ()=>{
+  const ta = document.getElementById('exportText');
+  ta.select();
+  try{
+    await navigator.clipboard.writeText(ta.value);
+    toast('Copied to clipboard');
+  }catch(e){
+    toast('Select the text above and copy manually');
+  }
+};
+
+/* ---------------- modal ---------------- */
+const modalOverlay = document.getElementById('modalOverlay');
+const modalInput = document.getElementById('modalInput');
+let modalResolve = null;
+function openModal(title, defaultValue){
+  document.getElementById('modalTitle').textContent = title;
+  modalInput.value = defaultValue || '';
+  modalOverlay.classList.add('open');
+  setTimeout(()=>modalInput.focus(), 30);
+  return new Promise(res=>{ modalResolve = res; });
+}
+document.getElementById('modalOk').onclick = ()=>{
+  modalOverlay.classList.remove('open');
+  if(modalResolve) modalResolve(modalInput.value.trim());
+};
+document.getElementById('modalCancel').onclick = ()=>{
+  modalOverlay.classList.remove('open');
+  if(modalResolve) modalResolve(null);
+};
+
+const confirmOverlay = document.getElementById('confirmOverlay');
+let confirmResolve = null;
+function openConfirm(title, message){
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMessage').textContent = message;
+  confirmOverlay.classList.add('open');
+  return new Promise(res => { confirmResolve = res; });
+}
+document.getElementById('confirmOkBtn').onclick = () => {
+  confirmOverlay.classList.remove('open');
+  if(confirmResolve) confirmResolve(true);
+};
+document.getElementById('confirmCancelBtn').onclick = () => {
+  confirmOverlay.classList.remove('open');
+  if(confirmResolve) confirmResolve(false);
+};
+
+/* ---------------- toast ---------------- */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+/* ---------------- structure switcher ---------------- */
+const structureSelect = document.getElementById('structureSelect');
+function refreshStructureSelect(){
+  structureSelect.innerHTML = '';
+  Object.keys(structures).forEach(name=>{
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    if(name === currentStructureName) opt.selected = true;
+    structureSelect.appendChild(opt);
+  });
+  const newOpt = document.createElement('option');
+  newOpt.value = '__new__'; newOpt.textContent = '+ New structure…';
+  structureSelect.appendChild(newOpt);
+}
+structureSelect.addEventListener('change', async ()=>{
+  const val = structureSelect.value;
+  if(val === '__new__'){
+    const name = await openModal('New structure', '');
+    if(!name){ refreshStructureSelect(); return; }
+    if(structures[name]){ toast('That name is already used'); refreshStructureSelect(); return; }
+    structures[name] = [makeLine(0, tokens.length-1, 0)];
+    currentStructureName = name;
+    lines = structures[name];
+    history=[]; future=[]; selectedIds.clear();
+    refreshStructureSelect();
+    render();
+    return;
+  }
+  currentStructureName = val;
+  lines = structures[val];
+  history=[]; future=[]; selectedIds.clear();
+  render();
+});
+
+/* ---------------- search ---------------- */
+/* ---------------- zoom ---------------- */
+let zoomLevel = 1;
+const ZOOM_MIN = 0.8, ZOOM_MAX = 2.0, ZOOM_STEP = 0.15;
+function applyZoom(){
+  const base = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--outline-font-size')) || 0.86;
+  outlineEl.style.fontSize = (base * zoomLevel).toFixed(2) + 'rem';
+}
+document.getElementById('zoomInBtn').onclick = () => {
+  zoomLevel = Math.min(ZOOM_MAX, +(zoomLevel + ZOOM_STEP).toFixed(2));
+  applyZoom();
+};
+document.getElementById('zoomOutBtn').onclick = () => {
+  zoomLevel = Math.max(ZOOM_MIN, +(zoomLevel - ZOOM_STEP).toFixed(2));
+  applyZoom();
+};
+
+/* ---------------- theme ---------------- */
+const THEME_ORDER = ['console', 'modern-light', 'modern-dark'];
+const THEME_META = {
+  'console':      {icon:'⌨', title:'Console mode — tap to switch to Modern (light)'},
+  'modern-light': {icon:'☀', title:'Modern, light — tap to switch to Modern (dark)'},
+  'modern-dark':  {icon:'☾', title:'Modern, dark — tap to switch to Console'},
+};
+let currentTheme = 'console';
+
+function applyTheme(name){
+  currentTheme = name;
+  if(name === 'console'){
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', name);
+  }
+  const btn = document.getElementById('themeBtn');
+  btn.textContent = THEME_META[name].icon;
+  btn.title = THEME_META[name].title;
+  applyZoom(); // base reading size differs by theme — re-apply on top of current zoom
+}
+
+let showVerseNumbers = true; // on by default for a fresh import
+document.getElementById('verseNumBtn').classList.add('active');
+document.getElementById('verseNumBtn').onclick = (e) => {
+  showVerseNumbers = !showVerseNumbers;
+  document.body.classList.toggle('hide-verse-numbers', !showVerseNumbers);
+  e.currentTarget.classList.toggle('active', showVerseNumbers);
+};
+
+document.getElementById('themeBtn').onclick = () => {
+  const idx = THEME_ORDER.indexOf(currentTheme);
+  applyTheme(THEME_ORDER[(idx + 1) % THEME_ORDER.length]);
+};
+applyTheme('modern-dark');
+
+document.getElementById('notesViewBtn').onclick = openPrintPreview;
+
+/* ---------------- reading mode ----------------
+   A fully static rendering of the current structure — no tap-to-select,
+   no split-arming, no gestures of any kind. The only interactive control
+   is font size, deliberately separate from the main outline's own zoom
+   since this is a distinct view for a distinct purpose (reading/printing,
+   not editing). */
+let previewFontScale = 1;
+const PREVIEW_FONT_MIN = 0.8, PREVIEW_FONT_MAX = 2.2, PREVIEW_FONT_STEP = 0.15;
+
+function applyPreviewFontSize(){
+  const base = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--outline-font-size')) || 1;
+  document.getElementById('previewContent').style.fontSize = (base * previewFontScale).toFixed(2) + 'rem';
+}
+
+function renderPreviewContent(){
+  const container = document.getElementById('previewContent');
+  container.innerHTML = '';
+  lines.forEach((line, i) => {
+    const effColor = getEffectiveColor(i);
+    const indentCss = `calc(var(--indent-unit) * ${line.indent})`;
+
+    if(line.title){
+      const heading = document.createElement('div');
+      heading.className = 'chunk-heading';
+      heading.style.paddingLeft = indentCss;
+      const span = document.createElement('span');
+      span.textContent = line.title;
+      span.style.color = effColor || 'var(--accent)';
+      heading.appendChild(span);
+      container.appendChild(heading);
+    }
+
+    const row = document.createElement('div');
+    row.className = 'line';
+    row.style.paddingLeft = indentCss;
+    const textEl = document.createElement('span');
+    textEl.className = 'unit-text';
+    textEl.style.color = effColor || 'var(--ink)';
+    for(let k=line.tokenStart; k<=line.tokenEnd; k++){
+      const t = tokens[k];
+      const span = document.createElement('span');
+      if(t.verseNumber){
+        const sup = document.createElement('sup');
+        sup.className = 'verse-num';
+        sup.textContent = t.verseNumber;
+        span.appendChild(sup);
+      }
+      span.appendChild(document.createTextNode(t.text));
+      textEl.appendChild(span);
+      if(k < line.tokenEnd) textEl.appendChild(document.createTextNode(' '));
+    }
+    row.appendChild(textEl);
+    container.appendChild(row);
+
+    const box = buildWordNotesBox(line);
+    if(box){
+      box.style.marginLeft = indentCss;
+      container.appendChild(box);
+    }
+  });
+}
+
+function openPrintPreview(){
+  previewFontScale = 1;
+  renderPreviewContent();
+  applyPreviewFontSize();
+  document.getElementById('printPreviewDialog').classList.add('open');
+}
+function closePrintPreview(){
+  document.getElementById('printPreviewDialog').classList.remove('open');
+}
+document.getElementById('previewDone').onclick = closePrintPreview;
+document.getElementById('previewFontMinus').onclick = () => {
+  previewFontScale = Math.max(PREVIEW_FONT_MIN, +(previewFontScale - PREVIEW_FONT_STEP).toFixed(2));
+  applyPreviewFontSize();
+};
+document.getElementById('previewFontPlus').onclick = () => {
+  previewFontScale = Math.min(PREVIEW_FONT_MAX, +(previewFontScale + PREVIEW_FONT_STEP).toFixed(2));
+  applyPreviewFontSize();
+};
+
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchQuery = e.target.value.trim().toLowerCase();
+  render();
+});
+
+/* ---------------- undo/redo/new ---------------- */
+document.getElementById('undoBtn').onclick = undo;
+document.getElementById('redoBtn').onclick = redo;
+document.getElementById('newPassageBtn').onclick = async ()=>{
+  const ok = await openModal('Type "reset" to start a new passage (unsaved work is lost)', '');
+  if(ok && ok.toLowerCase() === 'reset'){
+    document.getElementById('app').classList.remove('active');
+    document.getElementById('importScreen').style.display = 'flex';
+  }
+};
+
+/* ---------------- import / tokenize ---------------- */
+function tokenize(raw){
+  const words = raw.split(/\s+/).filter(Boolean);
+  const out = [];
+  let pendingVerseNum = null;
+  for(let i=0; i<words.length; i++){
+    const w = words[i];
+    if(/^\d+$/.test(w)){
+      // A number was already pending — it wasn't actually followed by a
+      // word (another number came right after it), so emit it as plain
+      // text rather than silently dropping it, then track the new one.
+      if(pendingVerseNum !== null) out.push({text: pendingVerseNum});
+      pendingVerseNum = w;
+      continue;
+    }
+    const t = {text: w};
+    if(pendingVerseNum !== null){ t.verseNumber = pendingVerseNum; pendingVerseNum = null; }
+    out.push(t);
+  }
+  // A trailing number with no following word to attach to — keep it as
+  // plain text rather than losing it.
+  if(pendingVerseNum !== null) out.push({text: pendingVerseNum});
+  return out;
+}
+function loadPassage(title, raw, structureName){
+  tokens = tokenize(raw).map((t,i)=>({id:'t'+i, text:t.text, verseNumber:t.verseNumber || null}));
+  if(!tokens.length){ toast('Paste some text first'); return false; }
+  passageTitle = title || 'Untitled passage';
+  idCounter = 1;
+  const initialLines = [makeLine(0, tokens.length-1, 0)];
+  structures = {};
+  structures[structureName || 'My Study'] = initialLines;
+  currentStructureName = structureName || 'My Study';
+  lines = initialLines;
+  wordNotes = {};
+  enterApp();
+  return true;
+}
+
+document.getElementById('loadBtn').onclick = ()=>{
+  loadPassage(
+    document.getElementById('passageTitleInput').value.trim(),
+    document.getElementById('passageTextInput').value,
+    document.getElementById('structureNameInput').value.trim() || 'My Study'
+  );
+};
+document.getElementById('sampleBtn').onclick = ()=>{
+  document.getElementById('passageTitleInput').value = 'John 15:4–5';
+  document.getElementById('passageTextInput').value =
+    "Remain in me, and I in you. As the branch can't bear fruit by itself unless it remains in the vine, so neither can you, unless you remain in me. I am the vine. You are the branches. He who remains in me and I in him bears much fruit, for apart from me you can do nothing.";
+  document.getElementById('structureNameInput').value = 'My Study';
+};
+
+/* ---------------- save / resume ----------------
+   Saves as a self-contained HTML file with the data embedded in a script
+   tag — opening the file directly boots straight into the study, no picker
+   needed, and the exact app version that wrote it travels with the data,
+   so there's no format-drift risk the way a bare JSON file would have.
+   JSON is still accepted for loading (backward compatible with anything
+   saved before this), just no longer what "Save" produces. */
+// Pre-release: no installed base of saved files exists yet under the old
+// name, so this can just match the current brand cleanly rather than
+// carry a permanent internal/external naming mismatch forward.
+const SAVE_FORMAT = 'wordtracer-save';
+const SAVE_VERSION = 1;
+
+// Each entry upgrades a save object from exactly that version to the next
+// one. Empty for now — version 1 is the only format that has ever
+// shipped — but this is where a future migration step goes. Loading old
+// data into a newer app (which only happens via the "Choose file" picker,
+// never when opening a saved .html directly — that file carries its own
+// matching code) should upgrade through this chain rather than silently
+// assuming an old shape still matches what the current code expects.
+const SAVE_MIGRATIONS = {
+  // 1: (obj) => { ...transform obj in place for the version-2 shape...; return obj; },
+};
+
+function migrateSaveData(obj){
+  let v = obj.version || 1;
+  while(v < SAVE_VERSION){
+    const step = SAVE_MIGRATIONS[v];
+    if(!step) break; // no migration defined for this step — version check below will catch it
+    obj = step(obj);
+    v += 1;
+    obj.version = v;
+  }
+  return obj;
+}
+
+function slugify(s){
+  return (s || 'study').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'study';
+}
+
+function buildSaveObject(){
+  return {
+    format: SAVE_FORMAT,
+    version: SAVE_VERSION,
+    passageTitle,
+    tokens,
+    structures,
+    currentStructureName,
+    wordNotes
+  };
+}
+
+function saveToFile(){
+  const json = JSON.stringify(buildSaveObject());
+  // Defuse any literal script-closing sequence inside user-typed text (a
+  // title, a note) before embedding — \/ is a valid JSON escape for a
+  // plain slash, so JSON.parse reverses this correctly, but the HTML
+  // parser no longer recognises it as a tag boundary while scanning the
+  // file. Note: this same defusal has to apply to our OWN template string
+  // below too, split via concatenation — the HTML parser doesn't know
+  // JavaScript syntax, so a literal closing sequence written directly in
+  // our source is exactly as dangerous as one in untrusted content.
+  const safeJson = json.replace(/<\/script/gi, '<\\/script');
+  const embedTag = '<script id="embeddedSaveData" type="application/json">' + safeJson + '<' + '/script>';
+  const html = PRISTINE_HTML.replace(
+    /<script id="embeddedSaveData" type="application\/json">[\s\S]*?<\/script>/,
+    embedTag
+  );
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = slugify(passageTitle) + '.study.html';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast('Saved — open the file directly next time to resume');
+}
+
+// Shared by both the fresh-passage and load-from-file paths: everything
+// that actually switches the screen and kicks off the first render.
+function enterApp(){
+  history = []; future = []; selectedIds.clear(); searchQuery='';
+  document.getElementById('searchInput').value = '';
+  refreshStructureSelect();
+  document.getElementById('importScreen').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  render();
+}
+
+// Validates and applies a parsed save object, regardless of whether it
+// arrived via an embedded script tag or a loaded file. Every load path
+// funnels through here so they can't quietly drift out of sync with each
+// other the way separate copies of this logic have in earlier features.
+async function applySavedData(obj){
+  if(!obj || obj.format !== SAVE_FORMAT || !Array.isArray(obj.tokens) ||
+     !obj.structures || typeof obj.structures !== 'object'){
+    toast("That doesn't look like a WordTracer save file"); return false;
+  }
+  if(typeof obj.version !== 'number' || obj.version > SAVE_VERSION){
+    toast('This file was saved by a newer version of WordTracer — update the app to open it');
+    return false;
+  }
+  if(obj.version < SAVE_VERSION){
+    const proceed = await openConfirm(
+      'Older save file',
+      `This study was saved by an earlier version of WordTracer (v${obj.version}; this app is v${SAVE_VERSION}). ` +
+      `It can be upgraded automatically, but that upgrade hasn't been verified against every case — ` +
+      `some structure, colours, or notes could come through imperfectly. This original file is not changed ` +
+      `by opening it here, so if anything looks wrong afterward, you can always come back and open this exact file again.`
+    );
+    if(!proceed){
+      toast('Not opened — file left unchanged');
+      return false;
+    }
+    obj = migrateSaveData(obj);
+    if(obj.version < SAVE_VERSION){
+      toast("This file is from an older version that can't be upgraded automatically");
+      return false;
+    }
+  }
+  const names = Object.keys(obj.structures);
+  if(!names.length || !names.every(n => Array.isArray(obj.structures[n]))){
+    toast('Save file has no valid structures'); return false;
+  }
+  tokens = obj.tokens;
+  passageTitle = obj.passageTitle || 'Untitled passage';
+  structures = obj.structures;
+  currentStructureName = names.includes(obj.currentStructureName) ? obj.currentStructureName : names[0];
+  lines = structures[currentStructureName];
+  wordNotes = (obj.wordNotes && typeof obj.wordNotes === 'object') ? obj.wordNotes : {};
+  idCounter = 1;
+  Object.values(structures).forEach(lineArr => {
+    lineArr.forEach(l => {
+      const n = parseInt(String(l.id).replace(/^n/, ''), 10);
+      if(!Number.isNaN(n)) idCounter = Math.max(idCounter, n+1);
+    });
+  });
+  enterApp();
+  return true;
+}
+
+// A save file can arrive as raw JSON (old-style saves, still supported)
+// or as HTML with the data embedded — detected from content, not the file
+// extension, since a renamed file shouldn't break loading.
+function extractSaveJson(rawText){
+  const trimmed = rawText.trim();
+  if(trimmed.startsWith('<')){
+    const doc = new DOMParser().parseFromString(rawText, 'text/html');
+    const el = doc.getElementById('embeddedSaveData');
+    const text = el ? el.textContent.trim() : '';
+    return (text && text !== 'null') ? text : null;
+  }
+  return trimmed;
+}
+
+function loadFromSavedFile(file){
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const jsonText = extractSaveJson(reader.result);
+    if(!jsonText){
+      toast("That file doesn't contain a saved study"); return;
+    }
+    let obj;
+    try{
+      obj = JSON.parse(jsonText);
+    }catch(err){
+      toast("That file isn't valid — couldn't be read"); return;
+    }
+    if(await applySavedData(obj)) toast('Loaded "' + passageTitle + '"');
+  };
+  reader.readAsText(file);
+}
+
+// Checked once at boot, before the import screen is ever shown. A freshly
+// loaded app has the placeholder's literal "null" here; a saved file has
+// real data, in which case we skip the import screen entirely.
+function tryLoadEmbeddedData(){
+  const el = document.getElementById('embeddedSaveData');
+  if(!el) return false;
+  const text = el.textContent.trim();
+  if(!text || text === 'null') return false;
+  let obj;
+  try{
+    obj = JSON.parse(text);
+  }catch(err){
+    console.error('[embedded save data invalid]', err);
+    return false;
+  }
+  return applySavedData(obj);
+}
+
+document.getElementById('saveBtn').onclick = saveToFile;
+document.getElementById('loadFileBtn').onclick = () => document.getElementById('loadFileInput').click();
+document.getElementById('loadFileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(file) loadFromSavedFile(file);
+  e.target.value = '';
+});
+
+try{
+  tryLoadEmbeddedData();
+}catch(err){
+  console.error('[boot] tryLoadEmbeddedData() failed:', err);
+}
+
+})();
+</script>
+</body>
+</html>

@@ -48,7 +48,7 @@ A saved study is also fully self-contained: saving embeds your work directly int
 ### Chunk colouring
 
 - Open a chunk’s **Details** pane and pick a colour swatch.
-- The eight colours match Microsoft Word’s own standard palette — Command (Blue), Promise (Green), Illustration (Orange), Christological (Purple), Warning (Dark Red), Contrast (Teal), Emphasis (Pink), Prophecy (Dark Yellow) — familiar if you’ve ever colour-coded a Word document.
+- The eight colours match Microsoft Word’s own standard palette — familiar if you’ve ever colour-coded a Word document.
 - Colour belongs to that one chunk only. Colouring a chunk never changes any other chunk’s colour, at any indent level.
 
 ### Reading view

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <!--
   WordTracer — a structural Bible study tool
@@ -840,12 +841,6 @@ function splitUnit(id, boundary){
 
 // If a title would otherwise be lost, it becomes a note on that word
 // instead — prepended ahead of any note already there, never overwriting.
-function titleToNote(tokenIdx, titleText){
-  if(!titleText) return;
-  const existing = wordNotes[tokenIdx];
-  wordNotes[tokenIdx] = existing ? (titleText + '\n\n' + existing) : titleText;
-}
-
 function mergeWithNext(id){
   const i = indexOf(id);
   if(i < 0 || !hasText(lines[i])) return;
@@ -855,10 +850,13 @@ function mergeWithNext(id){
   }
   mutate(()=>{
     const a = lines[i];
-    titleToNote(a.tokenStart, a.title);
-    titleToNote(next.tokenStart, next.title);
     const merged = makeLine(a.tokenStart, next.tokenEnd, a.indent);
     merged.color = a.color;
+    // The upper (dominant) chunk's title is preserved as-is. If the
+    // absorbed chunk below also had a title, it's appended rather than
+    // lost; if only one of the two had a title, that one wins outright.
+    merged.title = (a.title && next.title) ? (a.title + ' / ' + next.title)
+                  : (a.title || next.title || '');
     lines.splice(i, 2, merged);
     selectedIds = new Set([merged.id]);
   });

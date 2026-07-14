@@ -77,6 +77,3 @@ WordTracer is free software, licensed under the [GNU General Public License v3.0
 ## Feedback
 
 Questions, bug reports, or ideas are welcome — please [open a GitHub Discussion](https://github.com/timothy733/WordTracer/discussions) rather than emailing directly.
-
-
-<meta name="google-site-verification" content="8BC2sk4oYjn4bwFoUw2gLviFzD5wTFVG2oqWTyvjf2c" />
